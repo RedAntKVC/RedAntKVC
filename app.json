@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "訂單管理系統",
+    "slug": "order-manager",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#C8102E"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.redantkvc.ordermanager"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#C8102E"
+      },
+      "package": "com.redantkvc.ordermanager"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "webpack"
+    }
+  }
+}
