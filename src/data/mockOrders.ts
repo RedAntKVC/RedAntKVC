@@ -1,0 +1,78 @@
+import { Order } from '../types/order';
+
+export const MOCK_ORDERS: Order[] = [
+  {
+    id: '1',
+    orderNumber: 'ORD-20240501-001',
+    customerName: '王小明',
+    customerPhone: '0912-345-678',
+    items: [
+      { name: '紅螞蟻辣椒醬', quantity: 2, unitPrice: 180 },
+      { name: '花椒油', quantity: 1, unitPrice: 120 },
+    ],
+    status: 'pending',
+    totalAmount: 480,
+    note: '請盡快出貨',
+    createdAt: new Date('2024-05-01T10:00:00'),
+    updatedAt: new Date('2024-05-01T10:00:00'),
+  },
+  {
+    id: '2',
+    orderNumber: 'ORD-20240501-002',
+    customerName: '李美麗',
+    customerPhone: '0923-456-789',
+    items: [
+      { name: '麻辣鍋底料', quantity: 3, unitPrice: 220 },
+    ],
+    status: 'processing',
+    totalAmount: 660,
+    note: '',
+    createdAt: new Date('2024-05-01T11:30:00'),
+    updatedAt: new Date('2024-05-01T12:00:00'),
+  },
+  {
+    id: '3',
+    orderNumber: 'ORD-20240430-005',
+    customerName: '陳大偉',
+    customerPhone: '0934-567-890',
+    items: [
+      { name: '紅螞蟻辣椒醬', quantity: 5, unitPrice: 180 },
+      { name: '麻辣鍋底料', quantity: 2, unitPrice: 220 },
+    ],
+    status: 'completed',
+    totalAmount: 1340,
+    note: '已到付款',
+    createdAt: new Date('2024-04-30T09:00:00'),
+    updatedAt: new Date('2024-04-30T15:00:00'),
+  },
+  {
+    id: '4',
+    orderNumber: 'ORD-20240429-003',
+    customerName: '張小芳',
+    customerPhone: '0945-678-901',
+    items: [
+      { name: '花椒油', quantity: 2, unitPrice: 120 },
+    ],
+    status: 'cancelled',
+    totalAmount: 240,
+    note: '客戶取消訂單',
+    createdAt: new Date('2024-04-29T14:00:00'),
+    updatedAt: new Date('2024-04-29T16:00:00'),
+  },
+  {
+    id: '5',
+    orderNumber: 'ORD-20240502-001',
+    customerName: '林志強',
+    customerPhone: '0956-789-012',
+    items: [
+      { name: '紅螞蟻辣椒醬', quantity: 1, unitPrice: 180 },
+      { name: '花椒油', quantity: 1, unitPrice: 120 },
+      { name: '麻辣鍋底料', quantity: 1, unitPrice: 220 },
+    ],
+    status: 'pending',
+    totalAmount: 520,
+    note: '',
+    createdAt: new Date('2024-05-02T08:00:00'),
+    updatedAt: new Date('2024-05-02T08:00:00'),
+  },
+];
