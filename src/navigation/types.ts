@@ -1,4 +1,10 @@
 export type RootStackParamList = {
-  OrderList: undefined;
+  Main: undefined;
   OrderDetail: { orderId: string };
+  SubmitOrder: undefined;
+};
+
+export type TabParamList = {
+  OrderList: undefined;
+  Reports: undefined;
 };
