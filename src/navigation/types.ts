@@ -7,4 +7,5 @@ export type RootStackParamList = {
 export type TabParamList = {
   OrderList: undefined;
   Reports: undefined;
+  UserManagement: undefined;
 };
