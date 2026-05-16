@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "RedAnt Dashboard",
+    "slug": "redant-dashboard",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.redantkvc.dashboard",
+      "infoPlist": {
+        "NSCalendarsUsageDescription": "存取日曆以整合行事曆資料",
+        "NSRemindersUsageDescription": "存取提醒事項以整合待辦清單"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f172a"
+      },
+      "package": "com.redantkvc.dashboard",
+      "permissions": ["READ_CALENDAR", "WRITE_CALENDAR"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ef4444"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "scheme": "redant"
+  }
+}
