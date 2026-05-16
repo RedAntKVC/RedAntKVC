@@ -10,8 +10,8 @@
 
 ### 🔭 About Me
 
-- 🌱 Currently learning and building cool things
-- 💬 Ask me about anything tech-related
+- 🌱 Learning vibe coding — one vibe at a time
+- 🔰 Absolute beginner, but enjoying the ride
 - ⚡ Fun fact: Red ants never give up
 
 ---
