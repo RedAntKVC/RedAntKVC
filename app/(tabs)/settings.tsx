@@ -32,7 +32,7 @@ function SettingRow({
 }) {
   return (
     <TouchableOpacity
-      className="flex-row items-center justify-between py-3.5 border-b border-slate-700"
+      className="flex-row items-center justify-between py-3.5 border-b border-slate-800"
       onPress={onPress}
     >
       <Text className="text-white">{label}</Text>
@@ -45,14 +45,15 @@ export default function SettingsScreen() {
   const [googleConnected, setGoogleConnected] = useState(false);
   const [appleConnected, setAppleConnected] = useState(false);
   const [twitterConnected, setTwitterConnected] = useState(false);
-  const [showAppleForm, setShowAppleForm] = useState(false);
   const [appleUser, setAppleUser] = useState('');
   const [applePass, setApplePass] = useState('');
-  const [showTwitterForm, setShowTwitterForm] = useState(false);
+  const [showAppleForm, setShowAppleForm] = useState(false);
   const [twitterToken, setTwitterToken] = useState('');
+  const [showTwitterForm, setShowTwitterForm] = useState(false);
   const [monitors, setMonitors] = useState<MonitorTarget[]>([]);
   const [newUrl, setNewUrl] = useState('');
   const [newLabel, setNewLabel] = useState('');
+  const [newKeyword, setNewKeyword] = useState('');
 
   useEffect(() => {
     GoogleCalendarService.isConnected().then(setGoogleConnected);
@@ -60,26 +61,33 @@ export default function SettingsScreen() {
     SocialFeedService.isConnected().then(setTwitterConnected);
   }, []);
 
-  const [request, response, promptAsync] = GoogleCalendarService.useGoogleAuth();
+  const [, , promptAsync] = GoogleCalendarService.useGoogleAuth();
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      Alert.alert('Google 授權成功', '日曆同步已啟用');
-      setGoogleConnected(true);
+  async function handleGoogleConnect() {
+    if (googleConnected) {
+      await GoogleCalendarService.clearTokens();
+      setGoogleConnected(false);
+    } else {
+      const result = await promptAsync();
+      if (result?.type === 'success') {
+        // In production: exchange code for tokens via backend
+        Alert.alert('Google 授權成功', '日曆同步已啟用。請在後端完成 token 交換。');
+        setGoogleConnected(true);
+      }
     }
-  }, [response]);
-
-  async function connectApple() {
-    if (!appleUser || !applePass) return;
-    await AppleCalDAVService.saveCredentials(appleUser, applePass);
-    setAppleConnected(true);
-    setShowAppleForm(false);
-    Alert.alert('Apple 連接成功', 'iCloud 日曆同步已啟用');
   }
 
-  async function disconnectGoogle() {
-    await GoogleCalendarService.clearTokens();
-    setGoogleConnected(false);
+  async function connectApple() {
+    if (!appleUser.trim() || !applePass.trim()) {
+      Alert.alert('請輸入完整資訊');
+      return;
+    }
+    await AppleCalDAVService.saveCredentials(appleUser.trim(), applePass);
+    setAppleConnected(true);
+    setShowAppleForm(false);
+    setAppleUser('');
+    setApplePass('');
+    Alert.alert('Apple 連接成功', 'iCloud 日曆同步已啟用');
   }
 
   async function disconnectApple() {
@@ -88,23 +96,30 @@ export default function SettingsScreen() {
   }
 
   async function connectTwitter() {
-    if (!twitterToken) return;
-    await SocialFeedService.saveBearerToken(twitterToken);
+    if (!twitterToken.trim()) return;
+    await SocialFeedService.saveBearerToken(twitterToken.trim());
     setTwitterConnected(true);
     setShowTwitterForm(false);
+    setTwitterToken('');
   }
 
   function addMonitor() {
-    if (!newUrl || !newLabel) return;
+    if (!newUrl.trim() || !newLabel.trim()) return;
     const target: MonitorTarget = {
       id: Date.now().toString(),
-      url: newUrl,
-      label: newLabel,
+      url: newUrl.trim(),
+      label: newLabel.trim(),
+      keyword: newKeyword.trim() || undefined,
       checkInterval: 15,
     };
     setMonitors((prev) => [...prev, target]);
     setNewUrl('');
     setNewLabel('');
+    setNewKeyword('');
+  }
+
+  function removeMonitor(id: string) {
+    setMonitors((prev) => prev.filter((m) => m.id !== id));
   }
 
   return (
@@ -119,23 +134,31 @@ export default function SettingsScreen() {
             label="🔵 Google 日曆 / 待辦"
             rightElement={
               <TouchableOpacity
-                className={`px-3 py-1 rounded-full ${googleConnected ? 'bg-green-800' : 'bg-blue-600'}`}
-                onPress={googleConnected ? disconnectGoogle : () => promptAsync()}
+                className={`px-3 py-1 rounded-full ${
+                  googleConnected ? 'bg-green-800' : 'bg-blue-600'
+                }`}
+                onPress={handleGoogleConnect}
               >
-                <Text className="text-white text-xs">{googleConnected ? '已連接 ✓' : '連接'}</Text>
+                <Text className="text-white text-xs">
+                  {googleConnected ? '已連接' : '連接'}
+                </Text>
               </TouchableOpacity>
             }
           />
 
           {/* Apple */}
           <SettingRow
-            label="🍎 Apple iCloud 日曆"
+            label="🍎 Apple iCloud"
             rightElement={
               <TouchableOpacity
-                className={`px-3 py-1 rounded-full ${appleConnected ? 'bg-green-800' : 'bg-red-600'}`}
-                onPress={appleConnected ? disconnectApple : () => setShowAppleForm(!showAppleForm)}
+                className={`px-3 py-1 rounded-full ${
+                  appleConnected ? 'bg-green-800' : 'bg-red-600'
+                }`}
+                onPress={appleConnected ? disconnectApple : () => setShowAppleForm((v) => !v)}
               >
-                <Text className="text-white text-xs">{appleConnected ? '已連接 ✓' : '連接'}</Text>
+                <Text className="text-white text-xs">
+                  {appleConnected ? '已連接' : '連接'}
+                </Text>
               </TouchableOpacity>
             }
           />
@@ -143,7 +166,7 @@ export default function SettingsScreen() {
             <View className="py-3 gap-2">
               <TextInput
                 className="bg-slate-700 text-white rounded-lg px-3 py-2"
-                placeholder="Apple ID (電郵)"
+                placeholder="Apple ID（電郵）"
                 placeholderTextColor="#64748b"
                 value={appleUser}
                 onChangeText={setAppleUser}
@@ -152,14 +175,14 @@ export default function SettingsScreen() {
               />
               <TextInput
                 className="bg-slate-700 text-white rounded-lg px-3 py-2"
-                placeholder="App 專用密碼"
+                placeholder="App 專用密碼（非 Apple ID 密碼）"
                 placeholderTextColor="#64748b"
                 value={applePass}
                 onChangeText={setApplePass}
                 secureTextEntry
               />
               <Text className="text-slate-500 text-xs">
-                請至 appleid.apple.com → 安全性 → 產生 App 專用密碼
+                請前往 appleid.apple.com 產生 App 專用密碼
               </Text>
               <TouchableOpacity
                 className="bg-red-500 rounded-lg py-2 items-center"
@@ -172,13 +195,17 @@ export default function SettingsScreen() {
 
           {/* Twitter */}
           <SettingRow
-            label="🐦 Twitter / X 動態"
+            label="🐦 Twitter / X"
             rightElement={
               <TouchableOpacity
-                className={`px-3 py-1 rounded-full ${twitterConnected ? 'bg-green-800' : 'bg-sky-600'}`}
-                onPress={() => setShowTwitterForm(!showTwitterForm)}
+                className={`px-3 py-1 rounded-full ${
+                  twitterConnected ? 'bg-green-800' : 'bg-sky-600'
+                }`}
+                onPress={() => setShowTwitterForm((v) => !v)}
               >
-                <Text className="text-white text-xs">{twitterConnected ? '已連接 ✓' : '連接'}</Text>
+                <Text className="text-white text-xs">
+                  {twitterConnected ? '已連接' : '連接'}
+                </Text>
               </TouchableOpacity>
             }
           />
@@ -193,7 +220,7 @@ export default function SettingsScreen() {
                 secureTextEntry
               />
               <Text className="text-slate-500 text-xs">
-                請至 developer.twitter.com 申請並取得 Bearer Token
+                請至 developer.twitter.com 取得 Bearer Token
               </Text>
               <TouchableOpacity
                 className="bg-sky-500 rounded-lg py-2 items-center"
@@ -207,12 +234,20 @@ export default function SettingsScreen() {
 
         <SectionHeader title="網頁監控" />
         <View className="bg-slate-800 rounded-xl px-4">
+          {monitors.length === 0 && (
+            <Text className="text-slate-500 text-sm py-3">尚未新增監控目標</Text>
+          )}
           {monitors.map((m) => (
             <SettingRow
               key={m.id}
               label={m.label}
-              value={m.url.length > 30 ? m.url.slice(0, 30) + '…' : m.url}
-              onPress={() => setMonitors((prev) => prev.filter((x) => x.id !== m.id))}
+              value={m.url.length > 32 ? m.url.slice(0, 32) + '…' : m.url}
+              onPress={() => removeMonitor(m.id)}
+              rightElement={
+                <TouchableOpacity onPress={() => removeMonitor(m.id)}>
+                  <Text className="text-red-400 text-sm">刪除</Text>
+                </TouchableOpacity>
+              }
             />
           ))}
           <View className="py-3 gap-2">
@@ -225,12 +260,19 @@ export default function SettingsScreen() {
             />
             <TextInput
               className="bg-slate-700 text-white rounded-lg px-3 py-2"
-              placeholder="網址 (https://...)"
+              placeholder="網址（https://...）"
               placeholderTextColor="#64748b"
               value={newUrl}
               onChangeText={setNewUrl}
               autoCapitalize="none"
               keyboardType="url"
+            />
+            <TextInput
+              className="bg-slate-700 text-white rounded-lg px-3 py-2"
+              placeholder="監控關鍵字（選填）"
+              placeholderTextColor="#64748b"
+              value={newKeyword}
+              onChangeText={setNewKeyword}
             />
             <TouchableOpacity
               className="bg-slate-600 rounded-lg py-2 items-center"

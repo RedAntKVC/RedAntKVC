@@ -1,6 +1,9 @@
--- RedAnt Dashboard — Supabase Schema
--- Run this in the Supabase SQL editor
+-- Users table is managed by Supabase Auth (auth.users)
+-- The tables below store per-user app data.
 
+-- -------------------------------------------------------
+-- user_settings
+-- -------------------------------------------------------
 create table if not exists public.user_settings (
   id uuid primary key references auth.users(id) on delete cascade,
   google_connected boolean default false,
@@ -15,6 +18,9 @@ create table if not exists public.user_settings (
   updated_at timestamptz default now()
 );
 
+-- -------------------------------------------------------
+-- monitor_targets
+-- -------------------------------------------------------
 create table if not exists public.monitor_targets (
   id text primary key,
   user_id uuid references auth.users(id) on delete cascade,
@@ -28,6 +34,9 @@ create table if not exists public.monitor_targets (
   created_at timestamptz default now()
 );
 
+-- -------------------------------------------------------
+-- feed_cache
+-- -------------------------------------------------------
 create table if not exists public.feed_cache (
   id text primary key,
   user_id uuid references auth.users(id) on delete cascade,
@@ -41,21 +50,28 @@ create table if not exists public.feed_cache (
   created_at timestamptz default now()
 );
 
+-- -------------------------------------------------------
 -- Row Level Security
+-- -------------------------------------------------------
 alter table public.user_settings enable row level security;
 alter table public.monitor_targets enable row level security;
 alter table public.feed_cache enable row level security;
 
 create policy "Users can manage own settings"
-  on public.user_settings for all using (auth.uid() = id);
+  on public.user_settings for all
+  using (auth.uid() = id);
 
 create policy "Users can manage own monitors"
-  on public.monitor_targets for all using (auth.uid() = user_id);
+  on public.monitor_targets for all
+  using (auth.uid() = user_id);
 
 create policy "Users can manage own feed"
-  on public.feed_cache for all using (auth.uid() = user_id);
+  on public.feed_cache for all
+  using (auth.uid() = user_id);
 
--- Auto-update updated_at
+-- -------------------------------------------------------
+-- updated_at trigger for user_settings
+-- -------------------------------------------------------
 create or replace function public.handle_updated_at()
 returns trigger as $$
 begin
