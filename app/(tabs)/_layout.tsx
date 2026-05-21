@@ -56,6 +56,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" label="設定" focused={focused} />,
         }}
       />
+      <Tabs.Screen
+        name="textbook"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon emoji="📚" label="用書" focused={focused} />,
+        }}
+      />
     </Tabs>
   );
 }
